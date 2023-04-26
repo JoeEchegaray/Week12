@@ -6,12 +6,13 @@ class Teams {
   }
 
   addPlayer (name, number) {
-    this.Player.push(new Player(name, number))
+    this.Players.push(new Player(name, number))
   }
 }
 
 class Player {
   constructor (name, number) {
+    this.id = ''
     this.name = name
     this.number = number
   }
@@ -34,7 +35,7 @@ class TeamService {
 
   static updateTeams (Team) {
     return $.ajax({
-      url: this.url + `/${Team._id}`,
+      url: this.url + `/${Team.id}`,
       dataType: 'json',
       data: JSON.stringify(Team),
       contentType: 'application/json',
@@ -62,11 +63,11 @@ class DOMManager {
       .then(() => {
         return TeamService.getAllTeams()
       })
-      .then(Teams => this.render(Teams))
+      .then(teams => this.render(teams))
   }
 
   static deleteTeam (id) {
-    TeamService.deleteTeams(id)
+    TeamService.deleteTeam(id)
       .then(() => {
         return TeamService.getAllTeams()
       })
@@ -74,32 +75,35 @@ class DOMManager {
   }
 
   static addPlayer (id) {
-    for (let teams of this.teams) {
-      if (teams._id == id) {
-        teams.player.push(
+    let counter = 0
+    for (let team of this.teams) {
+      if (team.id == id) {
+        team.Players.push(
           new Player(
-            $(`#${teams._id}-player-name`).val(),
-            $(`#${teams._id}-player-number`).val()
+            $(`#${team.id}-player-name`).val(),
+            $(`#${team.id}-player-number`).val(),
+            counter
           )
         )
-        TeamService.updateTeams(teams)
+        TeamService.updateTeams(team)
           .then(() => {
             return TeamService.getAllTeams()
           })
-          .then(Teams => this.render(teams))
+          .then(teams => this.render(teams))
       }
     }
+    counter++
   }
 
   static deletePlayer (teamsId, playerId) {
-    for (let teams of this.teams) {
-      if (Teams._id == teamsId) {
-        for (let player of teams.players) {
-          if (player._id == playerId) {
-            teams.players.splice(teams.players.indesOr(player), 1)
-            TeamService.updateTeams(teams)
+    for (let team of this.teams) {
+      if (team.id == teamsId) {
+        for (let player of team.Players) {
+          if (player.id == playerId) {
+            team.Players.splice(team.Players.indexOf(player), 1)
+            TeamService.updateTeams(team)
               .then(() => {
-                return TeamService.Teams()
+                return TeamService.getAllTeams()
               })
               .then(teams => this.render(teams))
           }
@@ -108,39 +112,40 @@ class DOMManager {
     }
   }
 
-  static render (Teams) {
-    this.Teams = Teams
+  static render (teams) {
+    this.teams = teams
     $('#app').empty()
-    for (let team of Teams) {
+    for (let team of teams) {
+      console.log(team)
       $('#app').prepend(
-        `<div id="${Teams._id}" class="card">
+        `<div id="${team.id}" class="card">
                     <div class ="card-header" style="width: 80vw;">
-                        <h3>${Teams.name}</h2>
-                        <button class="btn btn-danger" onclick="DOMManager.deleteTeams('${Teams._id}')">Delete</button>
+                        <h3>${team.name}</h3> <span class="badge rounded-pill text-bg-primary"></span>
+                        <button class="btn btn-danger" onclick="DOMManager.deleteTeam('${team.id}')">Delete</button>
                     </div>
                     <div class="card-body">
                         <div class="card">
                             <div class ="row">
                                 <div class ="col-sm">
-                                    <input type="text" id="${Teams._id}-player-name" class="form-control" placeholder="Player Name">
+                                    <input type="text" id="${team.id}-player-name" class="form-control" placeholder="Player Name">
                                 </div>
                                 <div class ="col-sm">
-                                    <input type="text" id="${Teams._id}-player-number" class="form-control" placeholder="Player Number">
+                                    <input type="text" id="${team.id}-player-number" class="form-control" placeholder="Player Number">
                                 </div>
                             </div>
-                            <button id="${Teams._id}-new-player" class="btn btn-success mt-3" onclick="DOMManager.addPlayer('${Teams._id}')">Add Player</button>
+                            <button id="${team.id}-new-player" class="btn btn-success mt-3" onclick="DOMManager.addPlayer('${team.id}')">Add Player</button>
                         </div>
                     </div>
                 </div><br>`
       )
-      for (let player of Teams.players) {
-        $(`#${Teams._id}`)
+      for (let player of team.Players) {
+        $(`#${team.id}`)
           .find('.card-body')
           .append(
             `<p>
-                        <span id="name-${player._id}"><strong>Player Name: </strong> ${player.name}</span>
-                        <span id="number-${player._id}"><strong>Player Number: </strong> ${player.number}</span>
-                        <button class="btn btn-danger" onclick="DOMManager.deletePlayer('${Teams._id}', '${player._id}')">Delete Player</button>`
+                        <span id="name-${player.id}"><strong>Player Name: </strong> ${player.name}</span>
+                        <span id="number-${player.id}"><strong>Player Number: </strong> ${player.number}</span>
+                        <button class="btn btn-danger" onclick="DOMManager.deletePlayer('${team.id}', '${player.id}')">Delete Player</button>`
           )
       }
     }
