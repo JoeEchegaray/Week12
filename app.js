@@ -1,7 +1,6 @@
 class Teams {
   constructor (name, color) {
     this.name = name
-    this.color = color
     this.players = []
   }
 
@@ -119,7 +118,7 @@ class DOMManager {
       console.log(team)
       $('#app').prepend(
         `<div id="${team.id}" class="card">
-                    <div class ="card-header" style="width: 80vw;">
+                    <div class ="card-header">
                         <h3>${team.name}</h3> <span class="badge rounded-pill text-bg-primary"></span>
                         <button class="btn btn-danger" onclick="DOMManager.deleteTeam('${team.id}')">Delete</button>
                     </div>
@@ -133,7 +132,7 @@ class DOMManager {
                                     <input type="text" id="${team.id}-player-number" class="form-control" placeholder="Player Number">
                                 </div>
                             </div>
-                            <button id="${team.id}-new-player" class="btn btn-success mt-3" onclick="DOMManager.addPlayer('${team.id}')">Add Player</button>
+                            <button id="${team.id}-new-player" class="btn btn-success my-3" onclick="DOMManager.addPlayer('${team.id}')">Add Player</button>
                         </div>
                     </div>
                 </div><br>`
@@ -142,10 +141,10 @@ class DOMManager {
         $(`#${team.id}`)
           .find('.card-body')
           .append(
-            `<p>
-                        <span id="name-${player.id}"><strong>Player Name: </strong> ${player.name}</span>
-                        <span id="number-${player.id}"><strong>Player Number: </strong> ${player.number}</span>
-                        <button class="btn btn-danger" onclick="DOMManager.deletePlayer('${team.id}', '${player.id}')">Delete Player</button>`
+            `<p class="text-white text-center align-middle">
+                        <span id="name-${player.id}"><strong> Player Name: </strong> ${player.name} </span>
+                        <span class="ms-3" id="number-${player.id}"><strong> Player Number: </strong> ${player.number}</span>
+                        <button class="btn btn-danger mt-2 ms-5" onclick="DOMManager.deletePlayer('${team.id}', '${player.id}')">Delete Player</button>`
           )
       }
     }
